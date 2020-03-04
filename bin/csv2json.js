@@ -2,6 +2,7 @@
 'use strict';
 
 const fs = require('fs');
+const { csvToRecords } = require('../lib/convert');
 
 const file = process.argv[2];
 if (!file) {
@@ -9,13 +10,5 @@ if (!file) {
   process.exit(1);
 }
 
-const lines = fs.readFileSync(file, 'utf8').split('\n').filter(l => l.trim() !== '');
-const header = lines[0].split(',');
-const rows = lines.slice(1).map(line => {
-  const cells = line.split(',');
-  const obj = {};
-  header.forEach((name, i) => { obj[name] = cells[i]; });
-  return obj;
-});
-
-console.log(JSON.stringify(rows, null, 2));
+const records = csvToRecords(fs.readFileSync(file, 'utf8'));
+console.log(JSON.stringify(records, null, 2));

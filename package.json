@@ -2,6 +2,9 @@
   "name": "csv2json",
   "version": "0.1.0",
   "description": "Convert CSV to JSON",
+  "scripts": {
+    "test": "node test/run.js"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=12"
