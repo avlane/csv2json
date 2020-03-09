@@ -23,3 +23,9 @@ test('csvToRecords: empty input', () => {
   assert.deepStrictEqual(csvToRecords(''), []);
   assert.deepStrictEqual(csvToRecords('a,b\n'), []);
 });
+
+test('csvToRecords: quoted fields', () => {
+  assert.deepStrictEqual(csvToRecords('name,note\nAda,"likes, commas"\n'), [
+    { name: 'Ada', note: 'likes, commas' }
+  ]);
+});
