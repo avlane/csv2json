@@ -3,17 +3,8 @@
 
 const fs = require('fs');
 const { readArgs, usage, UsageError } = require('../lib/args');
-const { csvToRecords } = require('../lib/convert');
-
-function readStdin() {
-  return new Promise((resolve, reject) => {
-    let text = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', chunk => { text += chunk; });
-    process.stdin.on('end', () => resolve(text));
-    process.stdin.on('error', reject);
-  });
-}
+const { toRecords } = require('../lib/convert');
+const { CsvParser } = require('../lib/parser');
 
 async function main() {
   let opts;
@@ -28,8 +19,10 @@ async function main() {
     console.log(usage());
     return 0;
   }
-  const text = opts.file ? fs.readFileSync(opts.file, 'utf8') : await readStdin();
-  const json = JSON.stringify(csvToRecords(text), null, 2) + '\n';
+  const input = opts.file ? fs.createReadStream(opts.file) : process.stdin;
+  const rows = [];
+  for await (const row of input.pipe(new CsvParser(opts))) rows.push(row.fields);
+  const json = JSON.stringify(toRecords(rows), null, 2) + '\n';
   if (opts.output) fs.writeFileSync(opts.output, json);
   else process.stdout.write(json);
   return 0;
