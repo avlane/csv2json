@@ -56,3 +56,16 @@ test('cli: usage errors and --help', async () => {
   assert.strictEqual(help.code, 0);
   assert.ok(help.out.startsWith('usage: csv2json'));
 });
+
+test('cli: semicolon and tab separated input', async () => {
+  const semi = await runCli(['-d', ';'], 'a;b\n1;"2;3"\n');
+  assert.deepStrictEqual(JSON.parse(semi.out), [{ a: '1', b: '2;3' }]);
+  const tab = await runCli(['--tab'], 'a\tb\n1\t2, 3\n');
+  assert.deepStrictEqual(JSON.parse(tab.out), [{ a: '1', b: '2, 3' }]);
+});
+
+test('cli: a bad delimiter is a usage error', async () => {
+  const { code, err } = await runCli(['-d', 'ab']);
+  assert.strictEqual(code, 1);
+  assert.ok(err.includes('single character'));
+});

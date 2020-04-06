@@ -5,7 +5,7 @@ const { test } = require('./harness');
 const { readArgs, usage, UsageError } = require('../lib/args');
 
 test('readArgs: defaults', () => {
-  assert.deepStrictEqual(readArgs([]), { file: null, output: null, help: false });
+  assert.deepStrictEqual(readArgs([]), { file: null, output: null, delimiter: ',', help: false });
 });
 
 test('readArgs: file and output', () => {
@@ -37,4 +37,18 @@ test('usage: lists every option', () => {
   const text = usage();
   assert.ok(text.includes('-o, --output FILE'));
   assert.ok(text.includes('-h, --help'));
+});
+
+test('readArgs: delimiters', () => {
+  assert.strictEqual(readArgs(['-d', ';']).delimiter, ';');
+  assert.strictEqual(readArgs(['--delimiter=|']).delimiter, '|');
+  assert.strictEqual(readArgs(['-d', 'tab']).delimiter, '\t');
+  assert.strictEqual(readArgs(['-d', '\\t']).delimiter, '\t');
+  assert.strictEqual(readArgs(['--tab']).delimiter, '\t');
+});
+
+test('readArgs: bad delimiters', () => {
+  assert.throws(() => readArgs(['-d', '']), /single character/);
+  assert.throws(() => readArgs(['-d', ';;']), /single character/);
+  assert.throws(() => readArgs(['-d', '"']), /single character/);
 });
