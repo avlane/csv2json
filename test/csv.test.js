@@ -57,3 +57,19 @@ test('Tokenizer: rows remember the line they started on', () => {
   const rows = tokenizer.write('a\n"x\ny"\n\nb\n').concat(tokenizer.end());
   assert.deepStrictEqual(rows.map(r => r.line), [1, 2, 5]);
 });
+
+test('parse: a leading byte order mark is dropped', () => {
+  assert.deepStrictEqual(parse('﻿name,age\nAda,36\n'), [['name', 'age'], ['Ada', '36']]);
+});
+
+test('parse: only the very first character can be a BOM', () => {
+  const tokenizer = new Tokenizer();
+  const rows = tokenizer.write('a\n').concat(tokenizer.write('﻿b\n'), tokenizer.end());
+  assert.deepStrictEqual(rows.map(r => r.fields), [['a'], ['﻿b']]);
+});
+
+test('parse: a BOM split off into its own chunk', () => {
+  const tokenizer = new Tokenizer();
+  const rows = tokenizer.write('').concat(tokenizer.write('﻿'), tokenizer.write('a,b\n'), tokenizer.end());
+  assert.deepStrictEqual(rows.map(r => r.fields), [['a', 'b']]);
+});
