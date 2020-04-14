@@ -45,3 +45,9 @@ test('parser: an escaped quote split between chunks', async () => {
 test('parser: delimiter option', async () => {
   assert.deepStrictEqual(await parseChunks(['a;b\n1;2\n'], { delimiter: ';' }), [['a', 'b'], ['1', '2']]);
 });
+
+test('parser: multi-byte characters split across chunks survive', async () => {
+  const bytes = Buffer.from('name\nzoë €\n😀 ok\n', 'utf8');
+  const chunks = Array.from(bytes, byte => Buffer.from([byte]));
+  assert.deepStrictEqual(await parseChunks(chunks), [['name'], ['zoë €'], ['😀 ok']]);
+});

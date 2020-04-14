@@ -69,3 +69,10 @@ test('cli: a bad delimiter is a usage error', async () => {
   assert.strictEqual(code, 1);
   assert.ok(err.includes('single character'));
 });
+
+test('cli: UTF-8 input arriving in awkward pieces', async () => {
+  const bytes = Buffer.from('city\nZürich\nSão Paulo\n', 'utf8');
+  const chunks = [bytes.slice(0, 8), bytes.slice(8, 9), bytes.slice(9)];
+  const { out } = await runCli([], chunks);
+  assert.deepStrictEqual(JSON.parse(out), [{ city: 'Zürich' }, { city: 'São Paulo' }]);
+});
