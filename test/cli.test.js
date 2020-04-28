@@ -76,3 +76,10 @@ test('cli: UTF-8 input arriving in awkward pieces', async () => {
   const { out } = await runCli([], chunks);
   assert.deepStrictEqual(JSON.parse(out), [{ city: 'Zürich' }, { city: 'São Paulo' }]);
 });
+
+test('cli: --ndjson prints one object per line', async () => {
+  const { code, out } = await runCli(['--ndjson'], 'a,b\n1,2\n3,4\n');
+  assert.strictEqual(code, 0);
+  assert.strictEqual(out, '{"a":"1","b":"2"}\n{"a":"3","b":"4"}\n');
+  assert.strictEqual((await runCli(['--ndjson'], 'a,b\n')).out, '');
+});

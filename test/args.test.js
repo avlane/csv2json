@@ -5,7 +5,11 @@ const { test } = require('./harness');
 const { readArgs, usage, UsageError } = require('../lib/args');
 
 test('readArgs: defaults', () => {
-  assert.deepStrictEqual(readArgs([]), { file: null, output: null, delimiter: ',', help: false });
+  const opts = readArgs([]);
+  assert.strictEqual(opts.file, null);
+  assert.strictEqual(opts.output, null);
+  assert.strictEqual(opts.delimiter, ',');
+  assert.strictEqual(opts.help, false);
 });
 
 test('readArgs: file and output', () => {
