@@ -56,3 +56,8 @@ test('readArgs: bad delimiters', () => {
   assert.throws(() => readArgs(['-d', ';;']), /single character/);
   assert.throws(() => readArgs(['-d', '"']), /single character/);
 });
+
+test('readArgs: --no-header', () => {
+  assert.strictEqual(readArgs([]).header, true);
+  assert.strictEqual(readArgs(['--no-header']).header, false);
+});

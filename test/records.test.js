@@ -27,3 +27,8 @@ test('toRecords: a header called __proto__ does not break anything', () => {
   const [record] = toRecords([['__proto__', 'b'], ['x', 'y']]);
   assert.strictEqual(record.b, 'y');
 });
+
+test('toRecords: without a header every row is an array', () => {
+  const rows = parse('a,b\n1,2\n');
+  assert.deepStrictEqual(toRecords(rows, { header: false }), [['a', 'b'], ['1', '2']]);
+});

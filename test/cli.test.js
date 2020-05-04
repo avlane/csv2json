@@ -83,3 +83,8 @@ test('cli: --ndjson prints one object per line', async () => {
   assert.strictEqual(out, '{"a":"1","b":"2"}\n{"a":"3","b":"4"}\n');
   assert.strictEqual((await runCli(['--ndjson'], 'a,b\n')).out, '');
 });
+
+test('cli: --no-header gives arrays', async () => {
+  const { out } = await runCli(['--no-header'], '1,2\n3,4\n');
+  assert.strictEqual(out, '[\n["1","2"],\n["3","4"]\n]\n');
+});
