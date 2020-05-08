@@ -88,3 +88,12 @@ test('cli: --no-header gives arrays', async () => {
   const { out } = await runCli(['--no-header'], '1,2\n3,4\n');
   assert.strictEqual(out, '[\n["1","2"],\n["3","4"]\n]\n');
 });
+
+test('cli: --types', async () => {
+  const { out } = await runCli(['--types', '--ndjson'], 'id,name,active,zip,score\n1,Ada,true,02134,9.5\n2,,false,10001,\n');
+  const lines = out.trim().split('\n').map(line => JSON.parse(line));
+  assert.deepStrictEqual(lines, [
+    { id: 1, name: 'Ada', active: true, zip: '02134', score: 9.5 },
+    { id: 2, name: null, active: false, zip: 10001, score: null }
+  ]);
+});
