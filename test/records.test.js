@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const { test } = require('./harness');
-const { toRecords, convertValue } = require('../lib/records');
+const { toRecords, convertValue, uniqueNames } = require('../lib/records');
 const { parse } = require('../lib/csv');
 
 test('toRecords: header row becomes the keys', () => {
@@ -57,4 +57,22 @@ test('convertValue: booleans and empty values', () => {
 
 test('toRecords: types option leaves the header alone', () => {
   assert.deepStrictEqual(toRecords([['1', 'ok'], ['2', 'true']], { types: true }), [{ 1: 2, ok: true }]);
+});
+
+test('uniqueNames: leaves distinct names alone', () => {
+  assert.deepStrictEqual(uniqueNames(['a', 'b', 'c']), ['a', 'b', 'c']);
+});
+
+test('uniqueNames: numbers repeated names', () => {
+  assert.deepStrictEqual(uniqueNames(['a', 'a', 'a']), ['a', 'a_2', 'a_3']);
+  assert.deepStrictEqual(uniqueNames(['a', 'a', 'a_2']), ['a', 'a_2', 'a_2_2']);
+});
+
+test('uniqueNames: names blank columns after their position', () => {
+  assert.deepStrictEqual(uniqueNames(['', 'b', '', '']), ['column_1', 'b', 'column_3', 'column_4']);
+  assert.deepStrictEqual(uniqueNames(['column_2', '']), ['column_2', 'column_2_2']);
+});
+
+test('toRecords: duplicate headers keep every value', () => {
+  assert.deepStrictEqual(toRecords([['x', 'x'], ['1', '2']]), [{ x: '1', x_2: '2' }]);
 });
