@@ -97,3 +97,11 @@ test('cli: --types', async () => {
     { id: 2, name: null, active: false, zip: 10001, score: null }
   ]);
 });
+
+test('cli: --strict fails on a ragged row', async () => {
+  const lenient = await runCli([], 'a,b\n1,2\n3,4,5\n');
+  assert.strictEqual(lenient.code, 0);
+  const strict = await runCli(['--strict'], 'a,b\n1,2\n3,4,5\n');
+  assert.strictEqual(strict.code, 1);
+  assert.ok(strict.err.includes('line 3: expected 2 fields but found 3'), strict.err);
+});

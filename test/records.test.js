@@ -76,3 +76,19 @@ test('uniqueNames: names blank columns after their position', () => {
 test('toRecords: duplicate headers keep every value', () => {
   assert.deepStrictEqual(toRecords([['x', 'x'], ['1', '2']]), [{ x: '1', x_2: '2' }]);
 });
+
+test('toRecords: short rows are padded with null, long rows are cut', () => {
+  assert.deepStrictEqual(toRecords([['a', 'b'], ['1'], ['1', '2', '3']]), [
+    { a: '1', b: null },
+    { a: '1', b: '2' }
+  ]);
+});
+
+test('toRecords: strict mode names the offending line', () => {
+  const rows = [{ fields: ['a', 'b'], line: 1 }, { fields: ['1', '2'], line: 2 }, { fields: ['1', '2', '3'], line: 3 }];
+  const { RecordBuilder } = require('../lib/records');
+  const builder = new RecordBuilder({ strict: true });
+  builder.push(rows[0]);
+  builder.push(rows[1]);
+  assert.throws(() => builder.push(rows[2]), /line 3: expected 2 fields but found 3/);
+});
