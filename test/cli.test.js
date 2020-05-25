@@ -105,3 +105,9 @@ test('cli: --strict fails on a ragged row', async () => {
   assert.strictEqual(strict.code, 1);
   assert.ok(strict.err.includes('line 3: expected 2 fields but found 3'), strict.err);
 });
+
+test('cli: an unterminated quote is reported with its line', async () => {
+  const { code, err } = await runCli([], 'a,b\n1,"2\n3,4\n');
+  assert.strictEqual(code, 1);
+  assert.ok(err.includes('line 2: unterminated quoted field'), err);
+});

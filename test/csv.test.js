@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const { test } = require('./harness');
-const { parse, Tokenizer } = require('../lib/csv');
+const { parse, Tokenizer, CsvError } = require('../lib/csv');
 
 test('parse: simple rows', () => {
   assert.deepStrictEqual(parse('a,b\n1,2\n'), [['a', 'b'], ['1', '2']]);
@@ -72,4 +72,21 @@ test('parse: a BOM split off into its own chunk', () => {
   const tokenizer = new Tokenizer();
   const rows = tokenizer.write('').concat(tokenizer.write('﻿'), tokenizer.write('a,b\n'), tokenizer.end());
   assert.deepStrictEqual(rows.map(r => r.fields), [['a', 'b']]);
+});
+
+test('parse: an unterminated quote is an error naming its line', () => {
+  assert.throws(() => parse('a,"b\nc'), /line 1: unterminated quoted field/);
+  assert.throws(() => parse('x\ny\n"abc'), /line 3: unterminated quoted field/);
+  assert.throws(() => parse('"abc'), CsvError);
+});
+
+test('parse: a quote that closes right at the end is fine', () => {
+  assert.deepStrictEqual(parse('a,"b"'), [['a', 'b']]);
+  assert.deepStrictEqual(parse('"a""b"'), [['a"b']]);
+});
+
+test('parse: text after a closing quote is kept unless --strict', () => {
+  assert.deepStrictEqual(parse('"a"b,c'), [['ab', 'c']]);
+  assert.throws(() => parse('"a"b,c', { strict: true }), /line 1: unexpected character after closing quote/);
+  assert.deepStrictEqual(parse('"a",c', { strict: true }), [['a', 'c']]);
 });

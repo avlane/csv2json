@@ -51,3 +51,7 @@ test('parser: multi-byte characters split across chunks survive', async () => {
   const chunks = Array.from(bytes, byte => Buffer.from([byte]));
   assert.deepStrictEqual(await parseChunks(chunks), [['name'], ['zoë €'], ['😀 ok']]);
 });
+
+test('parser: an unterminated quote surfaces as a stream error', async () => {
+  await assert.rejects(parseChunks(['a,b\n', '1,"oops\n2,3\n']), /line 2: unterminated quoted field/);
+});
