@@ -111,3 +111,12 @@ test('cli: an unterminated quote is reported with its line', async () => {
   assert.strictEqual(code, 1);
   assert.ok(err.includes('line 2: unterminated quoted field'), err);
 });
+
+test('cli: --select and --rename', async () => {
+  const input = 'id,name,email\n1,Ada,ada@example.com\n';
+  const { out } = await runCli(['--ndjson', '--select', 'email,id', '--rename', 'email:contact'], input);
+  assert.strictEqual(out, '{"contact":"ada@example.com","id":"1"}\n');
+  const bad = await runCli(['--select', 'nope'], input);
+  assert.strictEqual(bad.code, 1);
+  assert.ok(bad.err.includes('no such column: nope'));
+});

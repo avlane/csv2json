@@ -61,3 +61,16 @@ test('readArgs: --no-header', () => {
   assert.strictEqual(readArgs([]).header, true);
   assert.strictEqual(readArgs(['--no-header']).header, false);
 });
+
+test('readArgs: --select and --rename', () => {
+  assert.deepStrictEqual(readArgs(['--select', 'a, b,c']).select, ['a', 'b', 'c']);
+  assert.deepStrictEqual([...readArgs(['--rename', 'a:x,b:y']).rename], [['a', 'x'], ['b', 'y']]);
+  assert.strictEqual(readArgs([]).select, null);
+});
+
+test('readArgs: select and rename need good input', () => {
+  assert.throws(() => readArgs(['--select', ',']), /comma separated list/);
+  assert.throws(() => readArgs(['--rename', 'a']), /expected old:new/);
+  assert.throws(() => readArgs(['--rename', 'a:']), /expected old:new/);
+  assert.throws(() => readArgs(['--no-header', '--select', 'a']), /need a header row/);
+});

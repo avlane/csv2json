@@ -92,3 +92,24 @@ test('toRecords: strict mode names the offending line', () => {
   builder.push(rows[1]);
   assert.throws(() => builder.push(rows[2]), /line 3: expected 2 fields but found 3/);
 });
+
+test('toRecords: select orders and filters columns', () => {
+  const rows = [['a', 'b', 'c'], ['1', '2', '3']];
+  assert.deepStrictEqual(toRecords(rows, { select: ['c', 'a'] }), [{ c: '3', a: '1' }]);
+});
+
+test('toRecords: rename', () => {
+  const rows = [['a', 'b'], ['1', '2']];
+  assert.deepStrictEqual(toRecords(rows, { rename: new Map([['a', 'x']]) }), [{ x: '1', b: '2' }]);
+  assert.deepStrictEqual(
+    toRecords(rows, { select: ['b'], rename: new Map([['b', 'beta']]) }),
+    [{ beta: '2' }]
+  );
+});
+
+test('toRecords: select and rename refuse to guess', () => {
+  const rows = [['a', 'b'], ['1', '2']];
+  assert.throws(() => toRecords(rows, { select: ['zzz'] }), /no such column: zzz/);
+  assert.throws(() => toRecords(rows, { rename: new Map([['zzz', 'q']]) }), /cannot rename unknown column: zzz/);
+  assert.throws(() => toRecords(rows, { rename: new Map([['a', 'b']]) }), /not unique/);
+});
