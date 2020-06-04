@@ -120,3 +120,22 @@ test('cli: --select and --rename', async () => {
   assert.strictEqual(bad.code, 1);
   assert.ok(bad.err.includes('no such column: nope'));
 });
+
+test('cli: --pretty indents the array', async () => {
+  const { out } = await runCli(['--pretty'], 'a,b\n1,2\n3,4\n');
+  assert.strictEqual(out, [
+    '[',
+    '  {',
+    '    "a": "1",',
+    '    "b": "2"',
+    '  },',
+    '  {',
+    '    "a": "3",',
+    '    "b": "4"',
+    '  }',
+    ']',
+    ''
+  ].join('\n'));
+  assert.strictEqual((await runCli(['--pretty'], '')).out, '[]\n');
+  assert.deepStrictEqual(JSON.parse(out), [{ a: '1', b: '2' }, { a: '3', b: '4' }]);
+});
