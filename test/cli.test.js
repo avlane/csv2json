@@ -139,3 +139,8 @@ test('cli: --pretty indents the array', async () => {
   assert.strictEqual((await runCli(['--pretty'], '')).out, '[]\n');
   assert.deepStrictEqual(JSON.parse(out), [{ a: '1', b: '2' }, { a: '3', b: '4' }]);
 });
+
+test('cli: --trim and --skip-empty together', async () => {
+  const { out } = await runCli(['--trim', '--skip-empty', '--ndjson'], 'name , city\n Ada , London \n , \n,,\n');
+  assert.strictEqual(out, '{"name":"Ada","city":"London"}\n');
+});

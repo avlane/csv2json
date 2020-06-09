@@ -113,3 +113,14 @@ test('toRecords: select and rename refuse to guess', () => {
   assert.throws(() => toRecords(rows, { rename: new Map([['zzz', 'q']]) }), /cannot rename unknown column: zzz/);
   assert.throws(() => toRecords(rows, { rename: new Map([['a', 'b']]) }), /not unique/);
 });
+
+test('toRecords: trim also cleans the header', () => {
+  assert.deepStrictEqual(toRecords([[' a ', 'b '], ['  1', ' 2 ']], { trim: true }), [{ a: '1', b: '2' }]);
+  assert.deepStrictEqual(toRecords([[' a ', 'b '], ['  1', ' 2 ']]), [{ ' a ': '  1', 'b ': ' 2 ' }]);
+});
+
+test('toRecords: skipEmpty drops rows made only of empty fields', () => {
+  const rows = [['a', 'b'], ['1', '2'], ['', ''], ['', '3'], ['', '']];
+  assert.deepStrictEqual(toRecords(rows, { skipEmpty: true }), [{ a: '1', b: '2' }, { a: '', b: '3' }]);
+  assert.strictEqual(toRecords(rows).length, 4);
+});
