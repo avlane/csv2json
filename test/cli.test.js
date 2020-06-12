@@ -50,7 +50,7 @@ test('cli: missing file is an error', async () => {
 
 test('cli: usage errors and --help', async () => {
   const bad = await runCli(['--bogus']);
-  assert.strictEqual(bad.code, 1);
+  assert.strictEqual(bad.code, 2);
   assert.ok(bad.err.includes('unknown option: --bogus'));
   const help = await runCli(['--help']);
   assert.strictEqual(help.code, 0);
@@ -66,7 +66,7 @@ test('cli: semicolon and tab separated input', async () => {
 
 test('cli: a bad delimiter is a usage error', async () => {
   const { code, err } = await runCli(['-d', 'ab']);
-  assert.strictEqual(code, 1);
+  assert.strictEqual(code, 2);
   assert.ok(err.includes('single character'));
 });
 
@@ -143,4 +143,23 @@ test('cli: --pretty indents the array', async () => {
 test('cli: --trim and --skip-empty together', async () => {
   const { out } = await runCli(['--trim', '--skip-empty', '--ndjson'], 'name , city\n Ada , London \n , \n,,\n');
   assert.strictEqual(out, '{"name":"Ada","city":"London"}\n');
+});
+
+test('cli: a closed output pipe is not an error', async () => {
+  const { PassThrough, Writable } = require('stream');
+  const { run } = require('../lib/cli');
+  const { Sink } = require('./helpers');
+  class BrokenPipe extends Writable {
+    _write(chunk, encoding, callback) {
+      const err = new Error('write EPIPE');
+      err.code = 'EPIPE';
+      callback(err);
+    }
+  }
+  const stdin = new PassThrough();
+  stdin.end('a\n1\n2\n');
+  const stderr = new Sink();
+  const code = await run(['--ndjson'], { stdin, stdout: new BrokenPipe(), stderr });
+  assert.strictEqual(code, 0);
+  assert.strictEqual(stderr.text, '');
 });
