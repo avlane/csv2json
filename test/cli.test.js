@@ -163,3 +163,12 @@ test('cli: a closed output pipe is not an error', async () => {
   assert.strictEqual(code, 0);
   assert.strictEqual(stderr.text, '');
 });
+
+test('cli: --delimiter auto', async () => {
+  const semi = await runCli(['-d', 'auto'], '﻿"a,b";c\n1;2\n');
+  assert.deepStrictEqual(JSON.parse(semi.out), [{ 'a,b': '1', c: '2' }]);
+  const tab = await runCli(['-d', 'auto', '--ndjson'], 'x\ty\n1\t2\n');
+  assert.strictEqual(tab.out, '{"x":"1","y":"2"}\n');
+  const comma = await runCli(['-d', 'auto', '--ndjson'], 'x,y\n1,2\n');
+  assert.strictEqual(comma.out, '{"x":"1","y":"2"}\n');
+});

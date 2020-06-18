@@ -74,3 +74,7 @@ test('readArgs: select and rename need good input', () => {
   assert.throws(() => readArgs(['--rename', 'a:']), /expected old:new/);
   assert.throws(() => readArgs(['--no-header', '--select', 'a']), /need a header row/);
 });
+
+test('readArgs: --delimiter auto', () => {
+  assert.strictEqual(readArgs(['-d', 'auto']).delimiter, 'auto');
+});
