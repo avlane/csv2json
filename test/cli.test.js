@@ -172,3 +172,8 @@ test('cli: --delimiter auto', async () => {
   const comma = await runCli(['-d', 'auto', '--ndjson'], 'x,y\n1,2\n');
   assert.strictEqual(comma.out, '{"x":"1","y":"2"}\n');
 });
+
+test('cli: --skip and --limit', async () => {
+  const { out } = await runCli(['--ndjson', '--skip', '1', '--limit', '2'], 'n\n1\n2\n3\n4\n');
+  assert.strictEqual(out, '{"n":"2"}\n{"n":"3"}\n');
+});

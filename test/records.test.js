@@ -124,3 +124,16 @@ test('toRecords: skipEmpty drops rows made only of empty fields', () => {
   assert.deepStrictEqual(toRecords(rows, { skipEmpty: true }), [{ a: '1', b: '2' }, { a: '', b: '3' }]);
   assert.strictEqual(toRecords(rows).length, 4);
 });
+
+test('toRecords: skip and limit count data rows', () => {
+  const rows = [['n'], ['1'], ['2'], ['3'], ['4'], ['5']];
+  assert.deepStrictEqual(toRecords(rows, { skip: 1, limit: 2 }), [{ n: '2' }, { n: '3' }]);
+  assert.deepStrictEqual(toRecords(rows, { limit: 0 }), []);
+  assert.deepStrictEqual(toRecords(rows, { skip: 10 }), []);
+  assert.strictEqual(toRecords(rows, { skip: 0 }).length, 5);
+});
+
+test('toRecords: skip-empty rows do not count towards skip or limit', () => {
+  const rows = [['n'], [''], ['1'], [''], ['2'], ['3']];
+  assert.deepStrictEqual(toRecords(rows, { skipEmpty: true, skip: 1, limit: 1 }), [{ n: '2' }]);
+});

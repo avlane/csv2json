@@ -78,3 +78,14 @@ test('readArgs: select and rename need good input', () => {
 test('readArgs: --delimiter auto', () => {
   assert.strictEqual(readArgs(['-d', 'auto']).delimiter, 'auto');
 });
+
+test('readArgs: --skip and --limit', () => {
+  const none = readArgs([]);
+  assert.strictEqual(none.skip, 0);
+  assert.strictEqual(none.limit, null);
+  const some = readArgs(['--skip', '2', '--limit=10']);
+  assert.strictEqual(some.skip, 2);
+  assert.strictEqual(some.limit, 10);
+  assert.throws(() => readArgs(['--limit', '-1']), /non-negative whole number/);
+  assert.throws(() => readArgs(['--skip', 'x']), /non-negative whole number/);
+});
