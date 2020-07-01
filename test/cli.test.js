@@ -177,3 +177,14 @@ test('cli: --skip and --limit', async () => {
   const { out } = await runCli(['--ndjson', '--skip', '1', '--limit', '2'], 'n\n1\n2\n3\n4\n');
   assert.strictEqual(out, '{"n":"2"}\n{"n":"3"}\n');
 });
+
+test('cli: --stats goes to stderr', async () => {
+  const two = await runCli(['--stats'], 'a,b\n1,2\n3,4\n');
+  assert.strictEqual(two.code, 0);
+  assert.ok(/^csv2json: 2 records, 2 columns, \d+ ms\n$/.test(two.err), two.err);
+  assert.strictEqual(two.out, '[\n{"a":"1","b":"2"},\n{"a":"3","b":"4"}\n]\n');
+  const one = await runCli(['--stats', '--no-header'], '1,2,3\n');
+  assert.ok(/^csv2json: 1 record, 3 columns, /.test(one.err), one.err);
+  const quiet = await runCli([], 'a\n1\n');
+  assert.strictEqual(quiet.err, '');
+});
