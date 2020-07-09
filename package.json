@@ -1,7 +1,22 @@
 {
   "name": "csv2json",
-  "version": "0.1.0",
-  "description": "Convert CSV to JSON",
+  "version": "0.2.0",
+  "description": "Convert CSV to JSON, streaming, with RFC 4180 quoting",
+  "keywords": [
+    "csv",
+    "json",
+    "ndjson",
+    "cli",
+    "stream"
+  ],
+  "bin": {
+    "csv2json": "bin/csv2json.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "examples"
+  ],
   "scripts": {
     "test": "node test/run.js"
   },

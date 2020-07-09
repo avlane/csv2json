@@ -188,3 +188,10 @@ test('cli: --stats goes to stderr', async () => {
   const quiet = await runCli([], 'a\n1\n');
   assert.strictEqual(quiet.err, '');
 });
+
+test('cli: --version matches package.json', async () => {
+  const { code, out } = await runCli(['--version']);
+  assert.strictEqual(code, 0);
+  assert.strictEqual(out, require('../package.json').version + '\n');
+  assert.strictEqual((await runCli(['-V'])).out, out);
+});
