@@ -195,3 +195,18 @@ test('cli: --version matches package.json', async () => {
   assert.strictEqual(out, require('../package.json').version + '\n');
   assert.strictEqual((await runCli(['-V'])).out, out);
 });
+
+test('cli: the example files', async () => {
+  const dir = path.join(__dirname, '..', 'examples');
+  const quoted = await runCli([path.join(dir, 'quoted.csv')]);
+  assert.deepStrictEqual(JSON.parse(quoted.out), [
+    { id: '1', title: 'Hello, World', notes: 'She said "hi"' },
+    { id: '2', title: 'Multi-line', notes: 'first line\nsecond line' },
+    { id: '3', title: '', notes: '' }
+  ]);
+  const semi = await runCli(['--delimiter', 'auto', '--types', path.join(dir, 'semicolons.csv')]);
+  assert.deepStrictEqual(JSON.parse(semi.out), [
+    { produit: 'Café', prix: '3,50', stock: 12 },
+    { produit: 'Thé', prix: '2,80', stock: 0 }
+  ]);
+});
